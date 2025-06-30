@@ -66,7 +66,6 @@ func main() {
     // CORS configuration
     router.Use(cors.New(cors.Config{
         AllowOrigins: []string{
-        "https://finbanglavoice.fi/login",
         "https://finbanglavoice.fi",      // 🔥 Your production domain
         "https://www.finbanglavoice.fi",  // 🔥 With www subdomain
         "http://localhost:3000",          // 🔥 For local development

@@ -12,7 +12,18 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() {
-    // Build connection string
+    //  Railway's DATABASE_URL first
+    if databaseURL := os.Getenv("DATABASE_URL"); databaseURL != "" {
+        var err error
+        DB, err = gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
+        if err != nil {
+            log.Fatal("Failed to connect to database:", err)
+        }
+        log.Println("✅ Database connected successfully")
+        return
+    }
+    
+    // Fallback to individual environment variables (for local development)
     dsn := fmt.Sprintf(
         "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
         os.Getenv("DB_HOST"),
