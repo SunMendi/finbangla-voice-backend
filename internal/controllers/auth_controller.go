@@ -6,14 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
+	//"os"
 
 	"auth2_google/internal/config"
 	"auth2_google/internal/models"
 	"auth2_google/internal/utils"
 	"auth2_google/pkg/database"
 	"net/http"
-	"net/url"
+	//"net/url"
 
 	"github.com/gin-gonic/gin"
 )
@@ -79,22 +79,17 @@ func GoogleCallback(c *gin.Context) {
         })
         return
     }
-    userData := fmt.Sprintf(`{"id":%d,"name":"%s","email":"%s","picture":"%s"}`, 
-        user.ID, user.Name, user.Email, userInfo.Picture)
-
-    // 🔥 Redirect to frontend with token and user details
-    frontendURL := os.Getenv("FRONTEND_URL")
-    if frontendURL == "" {
-        frontendURL = "https://finbanglavoice.fi" // fallback
-    }
-
-    redirectURL := fmt.Sprintf("%s/auth/google/callback?token=%s&user=%s", 
-        frontendURL, 
-        jwtToken,
-        url.QueryEscape(userData),
-    )
-    
-    c.Redirect(http.StatusTemporaryRedirect, redirectURL)
+    c.JSON(http.StatusOK, gin.H{
+        "message": "Successfully authenticated with Google!",
+        "user": gin.H{
+            "id":      user.ID,
+            "name":    user.Name,
+            "email":   user.Email,
+            "picture": user.Picture,
+        },
+        "token":   jwtToken,
+        "expires": "7 days",
+    })
 
     // // 🆕 NEW: Store JWT in secure cookie
     // c.SetCookie("auth_token", jwtToken, 3600*24*7, "/", "", false, true)
