@@ -13,13 +13,26 @@ func BasicLogger() gin.HandlerFunc {
         // Record start time
         start := time.Now()
         
-        // Get client IP
+        // Get client IP and request details
         clientIP := c.ClientIP()
         method := c.Request.Method
         path := c.Request.URL.Path
+        origin := c.GetHeader("Origin")
+        userAgent := c.GetHeader("User-Agent")
         
-        // Log request start
-        log.Printf("🔍 %s %s from %s", method, path, clientIP)
+        // Log request start with Origin
+        if origin != "" {
+            log.Printf("🔍 %s %s from %s | Origin: %s", 
+                method, path, clientIP, origin)
+        } else {
+            log.Printf("🔍 %s %s from %s | No Origin header", 
+                method, path, clientIP)
+        }
+        
+        // Log User-Agent for additional debugging
+        if userAgent != "" {
+            log.Printf("🔍 User-Agent: %s", userAgent)
+        }
         
         // Process request
         c.Next()
@@ -28,8 +41,13 @@ func BasicLogger() gin.HandlerFunc {
         duration := time.Since(start)
         statusCode := c.Writer.Status()
         
-        // Log request completion
-        log.Printf("✅ %s %s | %d | %v | %s", 
-            method, path, statusCode, duration, clientIP)
+        // Log request completion with Origin
+        if origin != "" {
+            log.Printf("✅ %s %s | %d | %v | %s | Origin: %s", 
+                method, path, statusCode, duration, clientIP, origin)
+        } else {
+            log.Printf("✅ %s %s | %d | %v | %s", 
+                method, path, statusCode, duration, clientIP)
+        }
     }
 }
